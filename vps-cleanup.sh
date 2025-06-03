@@ -207,7 +207,6 @@ if $INTERACTIVE_MODE; then
     if command -v crontab &> /dev/null; then CRON_IS_INSTALLED=true; fi
     echo ""; echo -e "${cyan}-------------------- Scheduler Setup --------------------${plain}"
     echo "Please choose a scheduling method:"
-    local cron_option_text
     if $CRON_IS_INSTALLED; then cron_option_text="${yellow}2) Use Cron (traditional, already installed)${plain}"; else cron_option_text="${yellow}2) Use Cron (traditional, will be installed)${plain}"; fi
     echo -e "  ${green}1) Use Systemd Timer (recommended, no extra memory usage)${plain}"
     echo -e "  $cron_option_text"
