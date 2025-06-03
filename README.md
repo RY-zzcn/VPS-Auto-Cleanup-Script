@@ -25,12 +25,12 @@
 
 **使用 cURL:**
 ```bash
-bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh))
+curl -Ls https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh -o vps-cleanup.sh && chmod +x vps-cleanup.sh && ./vps-cleanup.sh
 ```
 
 **使用 Wget:**
 ```bash
-bash <(wget -qO- [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh))
+wget -qO- https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh -o vps-cleanup.sh && chmod +x vps-cleanup.sh && ./vps-cleanup.sh
 ```
 
 ### 非交互式用法 (高级)
@@ -39,17 +39,17 @@ bash <(wget -qO- [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Scr
 
 **示例 1：使用 Systemd Timer，在每天 04:00 执行**
 ```bash
-bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh)) --mode systemd --time 04:00
+curl -Ls https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh -o vps-cleanup.sh && chmod +x vps-cleanup.sh && ./vps-cleanup.sh --mode systemd --time 04:00
 ```
 
 **示例 2：使用 Cron，在每天 02:30 执行**
 ```bash
-bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh)) -m cron -t 02:30
+wget -qO- https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh -o vps-cleanup.sh && chmod +x vps-cleanup.sh && ./vps-cleanup.sh -m cron -t 02:30
 ```
 
 **示例 3：只执行一次清理，不设置任何定时任务**
 ```bash
-bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh)) -m none
+curl -Ls https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh -o vps-cleanup.sh && chmod +x vps-cleanup.sh && ./vps-cleanup.sh -m none
 ```
 
 ### 下载后执行
