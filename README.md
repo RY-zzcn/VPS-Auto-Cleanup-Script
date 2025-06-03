@@ -1,5 +1,7 @@
 # VPS 自动维护脚本 (VPS-Auto-Cleanup-Script)
 
+**作者: RY-zzcn**
+
 一个安全、跨平台、功能强大的 VPS 自动化维护脚本，旨在通过清理不必要的文件和日志来释放磁盘空间，并提供灵活的定时任务选项。
 
 ## ✨ 功能特性
@@ -15,32 +17,25 @@
   - **非交互模式**: 支持命令行参数，完美适配自动化部署和一键安装命令。
 - **日志记录**：每次运行都会将释放的空间大小记录到日志文件 (`/var/local/log/vps-auto-clean.log`)。
 
+## 🚀 使用方法
 
-### 方式一：下载并执行 (推荐)
+### 一键执行 (推荐)
 
-此方法会将脚本下载到当前目录，赋予权限后执行。这使您可以方便地在未来重复运行 (`./vps-cleanup.sh`) 或审查代码。脚本将以 **交互模式** 运行。
+此方法会在 **交互模式** 下运行脚本，引导您完成所有设置。
 
 **使用 cURL:**
-```bash
-curl -L [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh) -o vps-cleanup.sh && chmod +x vps-cleanup.sh && sudo ./vps-cleanup.sh
-```
-
-**使用 Wget:**
-```bash
-wget -O vps-cleanup.sh [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh) && chmod +x vps-cleanup.sh && sudo ./vps-cleanup.sh
-```
-
-### 方式二：直接在内存中执行
-
-此方法不会在您的硬盘上留下任何文件，适合纯粹的一次性执行。脚本同样以 **交互模式** 运行。
-
 ```bash
 bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh))
 ```
 
+**使用 Wget:**
+```bash
+bash <(wget -qO- [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh))
+```
+
 ### 非交互式用法 (高级)
 
-以上任意一种命令都可以结合命令行参数来跳过交互式菜单，实现完全自动化部署。
+您可以通过添加参数来完全自动化部署，无需任何手动输入。
 
 **示例 1：使用 Systemd Timer，在每天 04:00 执行**
 ```bash
@@ -49,13 +44,26 @@ bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Scri
 
 **示例 2：使用 Cron，在每天 02:30 执行**
 ```bash
-# 下载后执行
-curl -L [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh) -o vps-cleanup.sh && chmod +x vps-cleanup.sh && sudo ./vps-cleanup.sh -m cron -t 02:30
+bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh)) -m cron -t 02:30
 ```
 
 **示例 3：只执行一次清理，不设置任何定时任务**
 ```bash
 bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh)) -m none
+```
+
+### 下载后执行
+
+如果您希望保留脚本文件方便日后复用或审查，可以使用此方法。
+
+**使用 cURL:**
+```bash
+curl -L [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh) -o vps-cleanup.sh && chmod +x vps-cleanup.sh && sudo ./vps-cleanup.sh
+```
+
+**使用 Wget:**
+```bash
+wget [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh](https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Script/main/vps-cleanup.sh) && chmod +x vps-cleanup.sh && sudo ./vps-cleanup.sh
 ```
 
 
@@ -71,4 +79,3 @@ bash <(curl -sL [https://raw.githubusercontent.com/RY-zzcn/VPS-Auto-Cleanup-Scri
 ## 授权协议
 
 本项目采用 [MIT License](LICENSE) 授权。
-
