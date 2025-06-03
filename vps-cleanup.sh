@@ -1,25 +1,25 @@
 #!/bin/bash
 
-# VPS-Auto-Cleanup Script v3.0 - GitHub Distribution Edition
+# VPS-Auto-Cleanup Script v3.0 - (Chinese Localization)
 # Author: RY-zzcn
 # Project: https://github.com/RY-zzcn/VPS-Auto-Cleanup-Script
 #
-# A safe, cross-platform, and versatile script for automating VPS maintenance.
-# Features:
-# - Supports Debian/Ubuntu, CentOS/Fedora, Arch Linux.
-# - Safe cleanup: Uses package managers for kernel/dependency removal.
-# - Intelligent log management.
-# - Choice of scheduler: Systemd Timer (recommended) or Cron.
-# - Both interactive (for direct use) and non-interactive (for automation/one-liners) modes.
+# 一个安全、跨平台、功能强大的 VPS 自动化维护脚本。
+# 功能:
+# - 支持 Debian/Ubuntu, CentOS/Fedora, Arch Linux。
+# - 使用包管理器安全清理依赖和旧内核。
+# - 智能的日志管理。
+# - 可选 Systemd Timer (推荐) 或 Cron作为定时任务。
+# - 支持交互式 (直接运行) 和非交互式 (带参数运行) 两种模式。
 
 set -e
 
-# --- Default Configuration ---
+# --- 默认配置 ---
 LOG_RETENTION_DAYS=7
 LOG_TRUNCATE_SIZE_MB=50
 OWN_LOG_FILE="/var/local/log/vps-auto-clean.log"
 
-# --- Global Variables ---
+# --- 全局变量 ---
 green='\033[0;32m'; yellow='\033[1;33m'; cyan='\033[1;36m'; plain='\033[0m'
 PKG_MANAGER=""; PKG_INSTALL_CMD=""; PKG_CLEAN_CMD=""; PKG_AUTOREMOVE_CMD=""
 DAILY_SCRIPT_PATH="/usr/local/bin/vps-auto-clean-daily.sh"
@@ -30,24 +30,24 @@ SCHEDULE_TIME=""
 SCHEDULE_HOUR=""
 SCHEDULE_MINUTE=""
 
-# --- Function Definitions ---
+# --- 函数定义 ---
 
 usage() {
-    echo "Usage: $0 [options]"
+    echo "用法: $0 [选项]"
     echo ""
-    echo "This script cleans up a VPS and optionally sets up a daily scheduled task."
-    echo "If no options are provided, it runs in interactive mode."
+    echo "此脚本用于清理 VPS 并可选地设置每日定时任务。"
+    echo "如果未提供任何选项，脚本将以交互模式运行。"
     echo ""
-    echo "Options:"
-    echo "  -m, --mode [systemd|cron|none]   Set the schedule mode."
-    echo "                                     - systemd: (Recommended) Use Systemd Timer."
-    echo "                                     - cron: Use traditional Cron."
-    echo "                                     - none: Do not set up a scheduled task."
-    echo "  -t, --time <HH:MM>                 Set the schedule time in 24-hour format (e.g., 03:00)."
-    echo "                                     Required if --mode is 'systemd' or 'cron'."
-    echo "  -h, --help                         Display this help message."
+    echo "选项:"
+    echo "  -m, --mode [systemd|cron|none]   设置定时任务模式。"
+    echo "                                     - systemd: (推荐) 使用 Systemd 定时器。"
+    echo "                                     - cron:    使用传统的 Cron。"
+    echo "                                     - none:    不设置定时任务。"
+    echo "  -t, --time <HH:MM>                 设置定时任务的执行时间 (24小时制, 例如 03:00)。"
+    echo "                                     当 --mode 为 'systemd' 或 'cron' 时必须提供。"
+    echo "  -h, --help                         显示此帮助信息。"
     echo ""
-    echo "Example: $0 --mode systemd --time 04:00"
+    echo "示例: $0 --mode systemd --time 04:00"
 }
 
 detect_package_manager() {
@@ -60,36 +60,36 @@ detect_package_manager() {
     elif command -v pacman &> /dev/null; then
         PKG_MANAGER="pacman"; PKG_INSTALL_CMD="pacman -S --noconfirm"; PKG_CLEAN_CMD="paccache -r -k1 && paccache -ruk0"; PKG_AUTOREMOVE_CMD="pacman -Qtdq | pacman -Rns --noconfirm - || true"
     else
-        echo -e "${yellow}Error: Unsupported package manager.${plain}" >&2; exit 1
+        echo -e "${yellow}错误: 不支持的包管理器。${plain}" >&2; exit 1
     fi
 }
 
 run_cleanup() {
-    echo -e "${yellow}[Preparation] Installing dependencies and preparing log directory...${plain}"
+    echo -e "${yellow}[准备工作] 安装依赖组件并准备日志目录...${plain}"
     $PKG_INSTALL_CMD bc > /dev/null 2>&1; mkdir -p "$(dirname "$OWN_LOG_FILE")"
-    echo "======== $(date '+%Y-%m-%d %H:%M:%S') - Cleanup task started ========" >> "$OWN_LOG_FILE"
-    echo -e "${yellow}[Disk Usage] Calculating disk space before cleanup...${plain}"
+    echo "======== $(date '+%Y-%m-%d %H:%M:%S') - 清理任务开始 ========" >> "$OWN_LOG_FILE"
+    echo -e "${yellow}[磁盘使用] 正在计算清理前的磁盘占用...${plain}"
     pre_clean_used_kb=$(df -k / | awk 'NR==2 {print $3}')
-    echo -e "${yellow}[System Cleanup] Cleaning packages using ${PKG_MANAGER}...${plain}"
+    echo -e "${yellow}[系统清理] 正在使用 ${PKG_MANAGER} 清理软件包...${plain}"
     $PKG_CLEAN_CMD &> /dev/null; $PKG_AUTOREMOVE_CMD &> /dev/null
-    echo -e "${yellow}[Log Cleanup] Cleaning old log files...${plain}"
+    echo -e "${yellow}[日志清理] 正在清理旧的日志文件...${plain}"
     find /var/log -type f -mtime +"$LOG_RETENTION_DAYS" -delete
     find /var/log -type f -size +"${LOG_TRUNCATE_SIZE_MB}M" -exec truncate -s 0 {} \;
     journalctl --vacuum-time=1d > /dev/null 2>&1 || true
-    echo -e "${green}✅ Cleanup task completed!${plain}"
-    echo ""; echo -e "${yellow}[Result]${plain}"
+    echo -e "${green}✅ 清理任务执行完毕！${plain}"
+    echo ""; echo -e "${yellow}[结果统计]${plain}"
     post_clean_used_kb=$(df -k / | awk 'NR==2 {print $3}')
     cleared_kb=$((pre_clean_used_kb - post_clean_used_kb))
     if [ "$cleared_kb" -lt 0 ]; then cleared_kb=0; fi
     cleared_mb=$(echo "scale=2; $cleared_kb / 1024" | bc)
-    echo -e "Successfully freed space: ${green}${cleared_mb} MB${plain}"
-    echo ""; echo -e "${yellow}[Current Disk]${plain}"; df -h /
-    echo "$(date '+%Y-%m-%d %H:%M:%S') Freed: ${cleared_mb} MB" >> "$OWN_LOG_FILE"
-    echo "======== $(date '+%Y-%m-%d %H:%M:%S') - Cleanup task finished ========" >> "$OWN_LOG_FILE"; echo "" >> "$OWN_LOG_FILE"
+    echo -e "本轮成功释放空间: ${green}${cleared_mb} MB${plain}"
+    echo ""; echo -e "${yellow}[当前磁盘]${plain}"; df -h /
+    echo "$(date '+%Y-%m-%d %H:%M:%S') 释放: ${cleared_mb} MB" >> "$OWN_LOG_FILE"
+    echo "======== $(date '+%Y-%m-%d %H:%M:%S') - 清理任务结束 ========" >> "$OWN_LOG_FILE"; echo "" >> "$OWN_LOG_FILE"
 }
 
 setup_systemd_timer() {
-    echo ""; echo -e "${yellow}[Configuring Systemd Timer]...${plain}"
+    echo ""; echo -e "${yellow}[配置 Systemd 定时器]...${plain}"
     local service_name="vps-auto-clean"; local service_file="/etc/systemd/system/${service_name}.service"; local timer_file="/etc/systemd/system/${service_name}.timer"
     cat <<EOF > "$service_file"
 [Unit]
@@ -108,16 +108,16 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 EOF
-    echo -e "${yellow}Enabling and starting timer...${plain}"
+    echo -e "${yellow}正在启用并启动定时器...${plain}"
     systemctl daemon-reload; systemctl enable "${service_name}.timer"; systemctl start "${service_name}.timer"
-    echo -e "${green}✅ Systemd Timer configured for ${SCHEDULE_HOUR}:${SCHEDULE_MINUTE} daily.${plain}"
-    echo -e "${yellow}Verify with: systemctl list-timers${plain}"
+    echo -e "${green}✅ Systemd 定时器已配置，每日 ${SCHEDULE_HOUR}:${SCHEDULE_MINUTE} 执行。${plain}"
+    echo -e "${yellow}您可以使用 'systemctl list-timers' 命令查看状态。${plain}"
 }
 
 setup_cron_job() {
-    echo ""; echo -e "${yellow}[Configuring Cron]...${plain}"
+    echo ""; echo -e "${yellow}[配置 Cron]...${plain}"
     if ! $CRON_IS_INSTALLED; then
-        echo -e "${yellow}'crontab' not found. Attempting to install cron service...${plain}"
+        echo -e "${yellow}未找到 'crontab' 命令，正在尝试安装 cron 服务...${plain}"
         local cron_package_name="cron"; local cron_service_name="cron"
         if [[ "$PKG_MANAGER" == "dnf" || "$PKG_MANAGER" == "yum" ]]; then
             cron_package_name="cronie"; cron_service_name="crond"
@@ -125,13 +125,13 @@ setup_cron_job() {
             cron_package_name="cronie"; cron_service_name="cronie"
         fi
         $PKG_INSTALL_CMD "$cron_package_name" > /dev/null 2>&1
-        echo -e "${yellow}Starting and enabling cron service...${plain}"
+        echo -e "${yellow}正在启动并启用 cron 服务...${plain}"
         systemctl start "$cron_service_name"; systemctl enable "$cron_service_name"
-        echo -e "${green}✅ Cron service installed and started.${plain}"
+        echo -e "${green}✅ Cron 服务已成功安装并启动。${plain}"
     fi
     (crontab -l 2>/dev/null | grep -v -F "$DAILY_SCRIPT_PATH"; echo "${SCHEDULE_MINUTE} ${SCHEDULE_HOUR} * * * ${DAILY_SCRIPT_PATH} >/dev/null 2>&1") | crontab -
-    echo -e "${green}✅ Cron job configured for ${SCHEDULE_HOUR}:${SCHEDULE_MINUTE} daily.${plain}"
-    echo -e "${yellow}Verify with: crontab -l${plain}"
+    echo -e "${green}✅ Cron 定时任务已配置，每日 ${SCHEDULE_HOUR}:${SCHEDULE_MINUTE} 执行。${plain}"
+    echo -e "${yellow}您可以使用 'crontab -l' 命令查看。${plain}"
 }
 
 create_daily_script() {
@@ -139,7 +139,7 @@ cat <<EOF > "$DAILY_SCRIPT_PATH"
 #!/bin/bash
 set -e
 OWN_LOG_FILE="${OWN_LOG_FILE}"; PKG_CLEAN_CMD="${PKG_CLEAN_CMD}"; PKG_AUTOREMOVE_CMD="${PKG_AUTOREMOVE_CMD}"
-echo "======== \$(date '+%Y-%m-%d %H:%M:%S') - Background cleanup started ========" >> "\$OWN_LOG_FILE"
+echo "======== \$(date '+%Y-%m-%d %H:%M:%S') - 后台定时清理开始 ========" >> "\$OWN_LOG_FILE"
 pre_clean_used_kb=\$(df -k / | awk 'NR==2 {print \$3}')
 \$PKG_CLEAN_CMD > /dev/null 2>&1; \$PKG_AUTOREMOVE_CMD > /dev/null 2>&1
 find /var/log -type f -mtime +${LOG_RETENTION_DAYS} -delete
@@ -148,71 +148,75 @@ journalctl --vacuum-time=1d > /dev/null 2>&1 || true
 post_clean_used_kb=\$(df -k / | awk 'NR==2 {print \$3}')
 cleared_kb=\$((pre_clean_used_kb - post_clean_used_kb)); if [ "\$cleared_kb" -lt 0 ]; then cleared_kb=0; fi
 cleared_mb=\$(echo "scale=2; \$cleared_kb / 1024" | bc)
-echo "\$(date '+%Y-%m-%d %H:%M:%S') Freed: \${cleared_mb} MB" >> "\$OWN_LOG_FILE"
-echo "======== \$(date '+%Y-%m-%d %H:%M:%S') - Background cleanup finished ========" >> "\$OWN_LOG_FILE"; echo "" >> "\$OWN_LOG_FILE"
+echo "\$(date '+%Y-%m-%d %H:%M:%S') 释放: \${cleared_mb} MB" >> "\$OWN_LOG_FILE"
+echo "======== \$(date '+%Y-%m-%d %H:%M:%S') - 后台定时清理结束 ========" >> "\$OWN_LOG_FILE"; echo "" >> "\$OWN_LOG_FILE"
 EOF
     chmod +x "$DAILY_SCRIPT_PATH"
 }
 
-# --- Main Logic ---
+# --- 主逻辑 ---
 
-# Parse command-line arguments
+# 解析命令行参数
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -m|--mode) SCHEDULE_MODE="$2"; shift ;;
         -t|--time) SCHEDULE_TIME="$2"; shift ;;
         -h|--help) usage; exit 0 ;;
-        *) echo "Unknown parameter passed: $1"; usage; exit 1 ;;
+        *) echo "未知的参数: $1"; usage; exit 1 ;;
     esac
     shift
 done
 
-# If arguments were provided, switch to non-interactive mode
+# 如果提供了参数，切换到非交互模式
 if [ -n "$SCHEDULE_MODE" ]; then
     INTERACTIVE_MODE=false
 fi
 
-# --- Non-Interactive Mode Logic ---
+# --- 非交互模式逻辑 ---
 if ! $INTERACTIVE_MODE; then
     if [[ "$SCHEDULE_MODE" == "systemd" || "$SCHEDULE_MODE" == "cron" ]]; then
         if [ -z "$SCHEDULE_TIME" ]; then
-            echo "Error: --time HH:MM is required when --mode is 'systemd' or 'cron'." >&2
+            echo "错误: 当 --mode 为 'systemd' 或 'cron' 时, 必须提供 --time HH:MM 参数。" >&2
             usage; exit 1
         fi
         if ! [[ "$SCHEDULE_TIME" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
-            echo "Error: Invalid time format for --time. Use HH:MM." >&2
+            echo "错误: --time 的时间格式无效，请使用 HH:MM。" >&2
             usage; exit 1
         fi
         SCHEDULE_HOUR=$(echo "$SCHEDULE_TIME" | cut -d: -f1)
         SCHEDULE_MINUTE=$(echo "$SCHEDULE_TIME" | cut -d: -f2)
     elif [ "$SCHEDULE_MODE" != "none" ]; then
-        echo "Error: Invalid mode '$SCHEDULE_MODE'. Use 'systemd', 'cron', or 'none'." >&2
+        echo "错误: 无效的模式 '$SCHEDULE_MODE'。请使用 'systemd', 'cron', 或 'none'。" >&2
         usage; exit 1
     fi
 fi
 
-# --- Script Execution ---
+# --- 脚本执行 ---
 
-echo -e "${cyan}================= VPS Auto-Cleanup Script v3.0 =================${plain}"
-if [ "$(id -u)" -ne 0 ]; then echo -e "${yellow}Error: This script must be run as root.${plain}" >&2; exit 1; fi
+echo -e "${cyan}================= VPS 自动维护脚本 v3.0 =================${plain}"
+if [ "$(id -u)" -ne 0 ]; then echo -e "${yellow}错误: 此脚本必须以 root 身份运行。${plain}" >&2; exit 1; fi
 
 detect_package_manager
-echo -e "${yellow}[System] Detected package manager: ${green}${PKG_MANAGER}${plain}"
+echo -e "${yellow}[系统] 检测到包管理器: ${green}${PKG_MANAGER}${plain}"
 
 run_cleanup
 
-# --- Scheduler Setup ---
+# --- 定时任务设置 ---
 if $INTERACTIVE_MODE; then
-    # Interactive Mode
+    # 交互模式
     if command -v crontab &> /dev/null; then CRON_IS_INSTALLED=true; fi
-    echo ""; echo -e "${cyan}-------------------- Scheduler Setup --------------------${plain}"
-    echo "Please choose a scheduling method:"
-    if $CRON_IS_INSTALLED; then cron_option_text="${yellow}2) Use Cron (traditional, already installed)${plain}"; else cron_option_text="${yellow}2) Use Cron (traditional, will be installed)${plain}"; fi
-    echo -e "  ${green}1) Use Systemd Timer (recommended, no extra memory usage)${plain}"
+    echo ""; echo -e "${cyan}-------------------- 定时任务设置 --------------------${plain}"
+    echo "请选择一种定时任务方式:"
+    if $CRON_IS_INSTALLED; then
+        cron_option_text="${yellow}2) 使用 Cron (传统方式, 已安装)${plain}"
+    else
+        cron_option_text="${yellow}2) 使用 Cron (传统方式, 将自动安装)${plain}"
+    fi
+    echo -e "  ${green}1) 使用 Systemd Timer (推荐, 无额外内存占用)${plain}"
     echo -e "  $cron_option_text"
-    echo -e "  3) Do not set up a scheduler"
+    echo -e "  3) 不设置定时任务"
     echo -e "${cyan}------------------------------------------------------${plain}"
-    read -p "Enter your choice [1-3] (default: 1): " choice
+    read -p "请输入选项 [1-3] (默认为 1): " choice
     SCHEDULE_MODE_CHOICE="${choice:-1}"
 
     case "$SCHEDULE_MODE_CHOICE" in
@@ -223,34 +227,34 @@ if $INTERACTIVE_MODE; then
 
     if [[ "$SCHEDULE_MODE" == "systemd" || "$SCHEDULE_MODE" == "cron" ]]; then
          while true; do
-            read -p "Enter desired daily execution time (24h format, e.g., 03:00): " user_time
+            read -p "请输入每日执行时间 (24小时制, 格式 HH:MM, 例如 03:00): " user_time
             if [[ "$user_time" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
                 SCHEDULE_HOUR=$(echo "$user_time" | cut -d: -f1)
                 SCHEDULE_MINUTE=$(echo "$user_time" | cut -d: -f2)
                 break
             else
-                echo -e "${yellow}Invalid format. Please try again.${plain}"
+                echo -e "${yellow}格式错误，请重试。${plain}"
             fi
         done
     fi
 fi
 
-# Final setup based on mode (interactive or non-interactive)
+# 根据模式（交互式或非交互式）进行最终设置
 if [[ "$SCHEDULE_MODE" == "systemd" || "$SCHEDULE_MODE" == "cron" ]]; then
     create_daily_script
     if [ "$SCHEDULE_MODE" == "systemd" ]; then
-        if ! command -v systemctl &> /dev/null; then echo -e "${yellow}Error: systemctl not found. Cannot use Systemd Timer.${plain}" >&2; exit 1; fi
+        if ! command -v systemctl &> /dev/null; then echo -e "${yellow}错误: 未找到 systemctl 命令，无法使用 Systemd Timer。${plain}" >&2; exit 1; fi
         setup_systemd_timer
     else # cron
         setup_cron_job
     fi
 elif [ "$SCHEDULE_MODE" == "none" ]; then
-    echo -e "${green}✅ No scheduled task will be set up.${plain}"
+    echo -e "${green}✅ 好的，不设置定时任务。${plain}"
 else
-    # This case handles when INTERACTIVE_MODE is false but no mode was specified.
-    echo -e "${green}✅ No scheduled task was specified.${plain}"
+    # 此情况处理非交互模式下未指定模式的情形
+    echo -e "${green}✅ 未指定定时任务。${plain}"
 fi
 
 echo ""
-echo -e "${cyan}======================= Deployment Finished =======================${plain}"
-echo -e "${yellow}[Log File]${plain} ${OWN_LOG_FILE}"
+echo -e "${cyan}======================= 部署完成 =======================${plain}"
+echo -e "${yellow}[日志文件]${plain} ${OWN_LOG_FILE}"
